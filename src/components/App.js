@@ -18,14 +18,6 @@ function App() {
       else
         setUserObj(null);
       setInit(true);
-
-      // user.reload = async () => {
-      //   setUserObj(null);
-      //   setUserObj(()=>authService.currentUser);
-
-      // }
-      // setUserObj(user);
-      // setInit(true);
     });
   },[]);
 
@@ -33,10 +25,10 @@ function App() {
   const refreshUser = () => {
     const user=authService.currentUser;
     setUserObj({
-      displayName:user.displayName,
-      photoURL:user.photoURL,
-      uid:user.uid,
-      updateProfile: (args) => user.updateProfile(args)
+        displayName:user.displayName,
+        photoURL:user.photoURL,
+        uid:user.uid,
+        updateProfile: (args) => user.updateProfile(args)
     });
   }
   
@@ -52,7 +44,8 @@ function App() {
           /> 
         )
       : "Initializing"}
-      {/* <footer>&copy; {new Date().getFullYear()} Twitter</footer> */}
+      <br/>
+      <footer>&copy; {new Date().getFullYear()} Twitter</footer>
     </>
   ) 
 }

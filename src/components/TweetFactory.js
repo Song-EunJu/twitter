@@ -1,12 +1,17 @@
 import { dbService, storageService } from "fbInstance";
 import { v4 as uuidv4 } from 'uuid';
 import React, {useState} from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const TweetFactory = ({userObj}) => {
     const [tweet, setTweet]=useState("");
     const [attachment, setAttachment]=useState("");
 
     const onSubmit = async(event) => {
+        if (tweet === "") {
+            return;
+        }
         event.preventDefault();
         let attachmentUrl = "";
         if(attachment !== ""){
@@ -47,23 +52,48 @@ const TweetFactory = ({userObj}) => {
     }
 
     return (
-        <form onSubmit={onSubmit}> 
-            <input 
-                type="text" 
-                value={tweet} 
-                placeholder="What's on your mind?" 
-                maxLength={120} 
-                onChange={onChange}                
+    
+        <form onSubmit={onSubmit} className="factoryForm">
+            <div className="factoryInput__container">
+                <input
+                className="factoryInput__input"
+                value={tweet}
+                onChange={onChange}
+                type="text"
+                placeholder="What's on your mind?"
+                maxLength={120}
+                />
+                <input type="submit" value="&rarr;" className="factoryInput__arrow" />
+            </div>
+            <label for="attach-file" className="factoryInput__label">
+                <span>Add photos</span>
+                <FontAwesomeIcon icon={faPlus} />
+            </label>
+            <input
+                id="attach-file"
+                type="file"
+                accept="image/*"
+                onChange={onFileChange}
+                style={{
+                    opacity: 0,
+                }}
             />
-            <input type="file" accept="image/*" onChange={onFileChange}/>
-            <input type="submit" value="Tweet"/>
+    
             {attachment && (
-                <div> 
-                    <img src={attachment} width="150px" height="150px" alt="0"/>
-                    <button onClick={onClearAttachment}>Clear</button>
+                <div className="factoryForm__attachment">
+                    <img
+                        src={attachment}
+                        style={{
+                            backgroundImage: attachment,
+                        }}
+                    />
+                    <div className="factoryForm__clear" onClick={onClearAttachment}>
+                        <span>Remove</span>
+                        <FontAwesomeIcon icon={faTimes} />
+                    </div>
                 </div>
-            )}
-        </form>
+            )}	      
+        </form>	   
     )
 }
 export default TweetFactory;

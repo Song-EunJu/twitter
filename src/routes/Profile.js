@@ -4,8 +4,7 @@ import React, {useState, useEffect} from "react";
 const Profile = ({refreshUser, userObj}) => {
     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
     const [attachment, setAttachment]=useState("");
-    const [user, setUser] = useState([]);
-
+    const [user, setUser] = useState(userObj);
     const onLogOutClick = () => {
         authService.signOut();
     }
@@ -31,8 +30,9 @@ const Profile = ({refreshUser, userObj}) => {
                 id:doc.id,
                 ...doc.data()
             }));
-            setUser(userArray);
+            setUser(userArray[0]);
         })
+        refreshUser();
     },[]);
 
     const onPhotoSubmit = async(event) => {
@@ -43,8 +43,7 @@ const Profile = ({refreshUser, userObj}) => {
             await fileRef.putString(attachment, "data_url");
             photo=await fileRef.getDownloadURL();
         }
-
-        if(user.length===0){ // 처음 만드는 경우 
+        if(user===undefined){ 
             const profileObj = { 
                 photo,
                 creatorId:userObj.uid,
@@ -52,17 +51,14 @@ const Profile = ({refreshUser, userObj}) => {
             }
             await dbService.collection("user").add(profileObj)
         }
-        else{ // 이미 파일이 있는 경우 업데이트
-            console.log(user);
-            await dbService.doc(`user/${user[0].id}`).update({
+        else{ 
+            await dbService.doc(`user/${user.id}`).update({
                 photo
             });
         }
-
         await userObj.updateProfile({
             photoURL:photo
         })
-
         refreshUser();
         setAttachment("");
     }
@@ -82,9 +78,9 @@ const Profile = ({refreshUser, userObj}) => {
     }
 
     return (
-        <>
-           <div>
-                <form onSubmit={onProfileSubmit}>
+
+           <div className="container">
+                 <form onSubmit={onProfileSubmit} className="profileForm">
                     { userObj.photoURL && 
                         <div>
                             <img src={userObj.photoURL} alt="0" width="70px" height="70px"/>
@@ -93,19 +89,25 @@ const Profile = ({refreshUser, userObj}) => {
                     }
                     <input 
                         type="text" 
-                        placeholder="Display name" 
+                        placeholder="Display name"
+                        autoFocus
                         value={newDisPlayName}
                         onChange={onChange}
+                        className="formInput"
                     />
                     <input 
                         type="submit" 
                         value="Update Profile"
+                        className="formBtn"
+                        style={{
+                            marginTop: 10,
+                        }}
                     />
                 </form>
                 
                 <form onSubmit={onPhotoSubmit}>
                     
-                    { attachment && <img src={attachment} alt="0"/> }
+                    { attachment && <img src={attachment} alt="0" width="70px" height="70px"/> }
                     <input 
                         type="file" 
                         accept="image/*"
@@ -117,9 +119,11 @@ const Profile = ({refreshUser, userObj}) => {
                     />
                 </form>
         
-                <button onClick={onLogOutClick}>Log Out</button>
+                <span className="formBtn cancelBtn logOut" onClick={onLogOutClick}>
+    	            Log Out
+                </span>
             </div>
-        </>
+        
     );
 }
 export default Profile;
