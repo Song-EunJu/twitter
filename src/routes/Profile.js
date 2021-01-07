@@ -1,27 +1,14 @@
 import { authService, dbService, storageService} from "fbInstance";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 
 const Profile = ({refreshUser, userObj}) => {
     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
     const [attachment, setAttachment]=useState("");
-    const [docId, setdocId] = useState("");
-    
+    const [user, setUser] = useState([]);
+
     const onLogOutClick = () => {
         authService.signOut();
     }
-
-    // const getMyTweets = async() => {
-    //     const tweets = await dbService
-    //         .collection("tweets")
-    //         .where("creatorId","==",userObj.uid)
-    //         .orderBy("createdAt")
-    //         .get();
-    //     console.log(tweets.docs.map((doc)=>doc.data()));
-    // }
-
-    // useEffect(() => {
-    //     getMyTweets();
-    // },[]);
 
     const onChange = (event) => {
         const {target:{value}}=event;
@@ -38,38 +25,47 @@ const Profile = ({refreshUser, userObj}) => {
         refreshUser();
     }
 
+    useEffect(()=>{
+        dbService.collection("user").where("creatorId","==",userObj.uid).onSnapshot(snapshot => {
+            const userArray = snapshot.docs.map(doc => ({
+                id:doc.id,
+                ...doc.data()
+            }));
+            setUser(userArray);
+        })
+    },[]);
+
     const onPhotoSubmit = async(event) => {
         event.preventDefault();
         let photo="";
-
         if(attachment!==""){
             const fileRef=storageService.ref().child(`profiles/${userObj.uid}`);
             await fileRef.putString(attachment, "data_url");
             photo=await fileRef.getDownloadURL();
         }
-        
-        const isEmpty = (await dbService.collection("user").where("creatorId","==",userObj.uid).get()).empty;
-        if(isEmpty){ // 처음 만드는 경우 
+
+        if(user.length===0){ // 처음 만드는 경우 
             const profileObj = { 
                 photo,
                 creatorId:userObj.uid,
                 createdAt:Date.now()
             }
-            setdocId((await dbService.collection("user").add(profileObj)).id);
+            await dbService.collection("user").add(profileObj)
         }
         else{ // 이미 파일이 있는 경우 업데이트
-            await dbService.doc(`user/${docId}`).update({
+            console.log(user);
+            await dbService.doc(`user/${user[0].id}`).update({
                 photo
             });
         }
-        const photo2=photo;
-        await userObj.updateProfile({
-            photoURL:photo2
-        })
-        setAttachment("");
-        refreshUser();
-    }
 
+        await userObj.updateProfile({
+            photoURL:photo
+        })
+
+        refreshUser();
+        setAttachment("");
+    }
 
     const fileChange = (event) => {
         const {target:{files}}=event;
@@ -89,6 +85,12 @@ const Profile = ({refreshUser, userObj}) => {
         <>
            <div>
                 <form onSubmit={onProfileSubmit}>
+                    { userObj.photoURL && 
+                        <div>
+                            <img src={userObj.photoURL} alt="0" width="70px" height="70px"/>
+                            <br/>
+                        </div>
+                    }
                     <input 
                         type="text" 
                         placeholder="Display name" 
@@ -102,7 +104,7 @@ const Profile = ({refreshUser, userObj}) => {
                 </form>
                 
                 <form onSubmit={onPhotoSubmit}>
-                    { userObj.photoURL && <img src={userObj.photoURL} alt="0"/>}
+                    
                     { attachment && <img src={attachment} alt="0"/> }
                     <input 
                         type="file" 
