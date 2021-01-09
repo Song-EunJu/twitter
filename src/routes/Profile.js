@@ -1,8 +1,16 @@
 import { authService, dbService, storageService} from "fbInstance";
 import React, {useState, useEffect} from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const Profile = ({refreshUser, userObj}) => {
     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
+
+    // if(userObj.displayName==null)
+    //     const [newDisPlayName, setNewDisPlayName]=useState("");
+    // else
+    //     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
+
     const [attachment, setAttachment]=useState("");
     const [user, setUser] = useState(userObj);
     const onLogOutClick = () => {
@@ -33,7 +41,7 @@ const Profile = ({refreshUser, userObj}) => {
             setUser(userArray[0]);
         })
         refreshUser();
-    },[]);
+    },[refreshUser,userObj.uid]);
 
     const onPhotoSubmit = async(event) => {
         event.preventDefault();
@@ -77,12 +85,16 @@ const Profile = ({refreshUser, userObj}) => {
         }
     }
 
+    const onClearAttachment = () => {
+        setAttachment("");
+    }
+
     return (
 
            <div className="container">
-                 <form onSubmit={onProfileSubmit} className="profileForm">
+                <form onSubmit={onProfileSubmit} className="profileForm">
                     { userObj.photoURL && 
-                        <div>
+                        <div className="profile">
                             <img src={userObj.photoURL} alt="0" width="70px" height="70px"/>
                             <br/>
                         </div>
@@ -91,7 +103,7 @@ const Profile = ({refreshUser, userObj}) => {
                         type="text" 
                         placeholder="Display name"
                         autoFocus
-                        value={newDisPlayName}
+                        value={newDisPlayName==null ? "" : newDisPlayName}
                         onChange={onChange}
                         className="formInput"
                     />
@@ -105,20 +117,54 @@ const Profile = ({refreshUser, userObj}) => {
                     />
                 </form>
                 
-                <form onSubmit={onPhotoSubmit}>
-                    
-                    { attachment && <img src={attachment} alt="0" width="70px" height="70px"/> }
-                    <input 
-                        type="file" 
+                <form onSubmit={onPhotoSubmit}>                    
+                    <label htmlFor="attach-file" className="factoryInput__label">
+                        <span>Update photo</span>
+                        <FontAwesomeIcon icon={faPlus} />
+                    </label>
+                    <input
+                        id="attach-file"
+                        type="file"
                         accept="image/*"
                         onChange={fileChange}
+                        style={{
+                            opacity: 0,
+                        }}
                     />
-                    <input 
-                        type="submit" 
-                        value="Update Photo"
-                    />
+
+                    {attachment && (
+                        <div className="factoryForm__attachment">
+                            <img
+                                src={attachment}
+                                style={{
+                                    backgroundImage: attachment,
+                                    marginBottom:20,
+                                }}
+                                alt="0"
+                            />
+                            <div className="factoryForm__clear" >
+                                <input 
+                                    type="submit" 
+                                    value="Update Profile"
+                                    style={{
+                                        marginTop: 10,
+                                        marginBottom: 10,
+                                        marginRight: 10
+                                    }}
+                                />
+                                <FontAwesomeIcon icon={faCheck} />
+
+                            </div>
+                            <div className="factoryForm__clear" onClick={onClearAttachment}>
+                                <span style={{
+                                    fontSize:14.3333
+                                }}>Remove</span>
+                                <FontAwesomeIcon icon={faTimes} />
+                            </div>
+                        </div>
+                    )}	  
                 </form>
-        
+    
                 <span className="formBtn cancelBtn logOut" onClick={onLogOutClick}>
     	            Log Out
                 </span>

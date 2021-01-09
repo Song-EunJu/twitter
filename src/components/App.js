@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from "react";
+import React,{useEffect, useState, useCallback} from "react";
 import AppRouter from "components/Router";
 import {authService} from "fbInstance";
 
@@ -22,7 +22,7 @@ function App() {
   },[]);
 
   
-  const refreshUser = () => {
+  const refreshUser = useCallback(async () => {
     const user=authService.currentUser;
     setUserObj({
         displayName:user.displayName,
@@ -30,9 +30,8 @@ function App() {
         uid:user.uid,
         updateProfile: (args) => user.updateProfile(args)
     });
-  }
+  },[setUserObj]);
   
-
   return (
     <>
       { 

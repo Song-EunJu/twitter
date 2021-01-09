@@ -32,11 +32,6 @@ form {
   width: 100%;
 }
 
-ul { 
-    display: "flex";
-    justify-content:"center";
-    margin-top: 50;
-}
 
 .nweet-input::placeholder {
   color: white;
@@ -48,6 +43,12 @@ ul {
   max-width: 320px;
   display: flex;
   flex-direction: column;
+  text-align: center;
+}
+
+footer { 
+  margin-top: 20px;
+  text-align: center; 
 }
 
 .formInput {
@@ -77,6 +78,19 @@ ul {
 }
 
 /* Profile Page */
+.profile img{
+  margin-bottom:20px;
+  /* right: -10px;
+  top: 20px; */
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+}
+
+.profile {
+  text-align:center;
+}
+
 
 .profileForm {
   border-bottom: 1px solid rgba(255, 255, 255, 0.9);
@@ -84,6 +98,7 @@ ul {
   width: 100%;
   display: flex;
   flex-direction: column;
+  margin-bottom:10px;
 }
 
 .logOut {
@@ -107,6 +122,7 @@ ul {
   position: relative;
   margin-bottom: 20px;
   width: 100%;
+  text-align: center;
 }
 
 .factoryInput__input {
@@ -138,8 +154,9 @@ ul {
 }
 
 .factoryInput__label span {
-  margin-right: 10px;
-  font-size: 12px;
+  margin-right: 10px; 
+  font-size: 13px;
+  text-align: center;
 }
 
 .factoryForm__attachment {
@@ -149,9 +166,11 @@ ul {
 }
 
 .factoryForm__attachment img {
-  height: 80px;
-  width: 80px;
-  border-radius: 40px;
+  display: block;
+  margin: 0 auto;
+  height: 100px;
+  width: 100px;
+  border-radius: 50px;
 }
 
 .factoryForm__clear {
@@ -174,7 +193,7 @@ ul {
 }
 
 .nweet {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   background-color: white;
   width: 100%;
   max-width: 320px;
