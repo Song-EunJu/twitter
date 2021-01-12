@@ -5,12 +5,6 @@ import { faCheck, faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const Profile = ({refreshUser, userObj}) => {
     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
-
-    // if(userObj.displayName==null)
-    //     const [newDisPlayName, setNewDisPlayName]=useState("");
-    // else
-    //     const [newDisPlayName, setNewDisPlayName]=useState(userObj.displayName);
-
     const [attachment, setAttachment]=useState("");
     const [user, setUser] = useState(userObj);
     const onLogOutClick = () => {
@@ -33,14 +27,18 @@ const Profile = ({refreshUser, userObj}) => {
     }
 
     useEffect(()=>{
-        dbService.collection("user").where("creatorId","==",userObj.uid).onSnapshot(snapshot => {
-            const userArray = snapshot.docs.map(doc => ({
-                id:doc.id,
-                ...doc.data()
-            }));
-            setUser(userArray[0]);
-        })
-        refreshUser();
+        let mounted=true;
+        if(mounted){
+            dbService.collection("user").where("creatorId","==",userObj.uid).onSnapshot(snapshot => {
+                const userArray = snapshot.docs.map(doc => ({
+                    id:doc.id,
+                    ...doc.data()
+                }));
+                setUser(userArray[0]);
+            })
+            refreshUser();
+        }
+        return () => mounted=false;
     },[refreshUser,userObj.uid]);
 
     const onPhotoSubmit = async(event) => {
@@ -50,6 +48,7 @@ const Profile = ({refreshUser, userObj}) => {
             const fileRef=storageService.ref().child(`profiles/${userObj.uid}`);
             await fileRef.putString(attachment, "data_url");
             photo=await fileRef.getDownloadURL();
+            console.log(photo);
         }
         if(user===undefined){ 
             const profileObj = { 
@@ -80,6 +79,7 @@ const Profile = ({refreshUser, userObj}) => {
             fileReader.onloadend = (files) => {
                 const {currentTarget:{result}}=files;
                 setAttachment(result);
+                console.log(attachment);
             }
             fileReader.readAsDataURL(theFile);
         }
@@ -90,7 +90,6 @@ const Profile = ({refreshUser, userObj}) => {
     }
 
     return (
-
            <div className="container">
                 <form onSubmit={onProfileSubmit} className="profileForm">
                     { userObj.photoURL && 
